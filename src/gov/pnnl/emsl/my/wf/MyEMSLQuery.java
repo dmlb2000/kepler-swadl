@@ -46,11 +46,11 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		authobj.setTypeEquals(BaseType.UNKNOWN);
 		mdobj = new TypedIOPort(this, "MyEMSLMetadata", true, false);
 		mdobj.setTypeEquals(new ArrayType(BaseType.UNKNOWN));
-		itemid = new TypedIOPort(this, "Connection", false, true);
+		itemid = new TypedIOPort(this, "ItemID", false, true);
 		itemid.setTypeEquals(new ArrayType(BaseType.INT));
-		authtoken = new TypedIOPort(this, "Connection", false, true);
+		authtoken = new TypedIOPort(this, "AuthToken", false, true);
 		authtoken.setTypeEquals(new ArrayType(BaseType.STRING));
-		file = new TypedIOPort(this, "Connection", false, true);
+		file = new TypedIOPort(this, "FileName", false, true);
 		file.setTypeEquals(new ArrayType(BaseType.STRING));
 	}
 

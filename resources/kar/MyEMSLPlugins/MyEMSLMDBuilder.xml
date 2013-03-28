@@ -1,3 +1,23 @@
 <?xml version="1.0"?>
-<entity name="MyEMSLMDBuilder" class="gov.pnnl.emsl.my.wf.MyEMSLMDBuilder">
+<!DOCTYPE entity PUBLIC "-//UC Berkeley//DTD MoML 1//EN"
+    "http://ptolemy.eecs.berkeley.edu/xml/dtd/MoML_1.dtd">
+<entity name="MyEMSLMDBuilder" class="ptolemy.kernel.ComponentEntity">
+<property name="entityId"  value="urn:lsid:kepler-project.org/ns/:38359:19:1" class="org.kepler.moml.NamedObjId"/>
+<property name="class" value="gov.pnnl.emsl.my.wf.MyEMSLMDBuilder" class="ptolemy.kernel.util.StringAttribute">
+  <property name="id" value="null" class="ptolemy.kernel.util.StringAttribute"/>
+</property>
+<property name="semanticType" class="org.kepler.sms.SemanticType" value="urn:lsid:localhost:onto:2:1#DataOperation#Data Operation">
+</property>
+<property name="derivedFrom" class="org.kepler.moml.NamedObjIdReferralList">
+</property>
+<property name="kepler:MDStrings" class="org.kepler.moml.PortAttribute">
+  <property name="direction" value="input" class="ptolemy.kernel.util.StringAttribute"/>
+  <property name="dataType" value="arrayType(string)" class="ptolemy.kernel.util.StringAttribute"/>
+  <property name="isMultiport" value="false" class="ptolemy.kernel.util.StringAttribute"/>
+</property>
+<property name="kepler:MDObject" class="org.kepler.moml.PortAttribute">
+  <property name="direction" value="output" class="ptolemy.kernel.util.StringAttribute"/>
+  <property name="dataType" value="unknown" class="ptolemy.kernel.util.StringAttribute"/>
+  <property name="isMultiport" value="false" class="ptolemy.kernel.util.StringAttribute"/>
+</property>
 </entity>
