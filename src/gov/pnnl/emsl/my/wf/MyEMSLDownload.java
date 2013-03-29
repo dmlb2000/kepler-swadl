@@ -35,7 +35,7 @@ import gov.pnnl.emsl.my.MyEMSLGroupMD;
 
 public class MyEMSLQuery extends TypedAtomicActor {
 	public TypedIOPort authobj;
-	public TypedIOPort mdobj;
+	public TypedIOPort outdir;
 	public TypedIOPort file;
 	public TypedIOPort itemid;
 	public TypedIOPort authtoken;
@@ -44,13 +44,13 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		super(container, name);
 		authobj = new TypedIOPort(this, "MyEMSLConnection", true, false);
 		authobj.setTypeEquals(BaseType.UNKNOWN);
-		mdobj = new TypedIOPort(this, "MyEMSLMetadata", true, false);
-		mdobj.setTypeEquals(new ArrayType(BaseType.UNKNOWN));
-		itemid = new TypedIOPort(this, "ItemID", false, true);
+		outdir = new TypedIOPort(this, "OutDir", true, false);
+		outdir.setTypeEquals(BaseType.String);
+		itemid = new TypedIOPort(this, "ItemID", true, false);
 		itemid.setTypeEquals(new ArrayType(BaseType.INT));
-		authtoken = new TypedIOPort(this, "AuthToken", false, true);
+		authtoken = new TypedIOPort(this, "AuthToken", true, false);
 		authtoken.setTypeEquals(new ArrayType(BaseType.STRING));
-		file = new TypedIOPort(this, "FileName", false, true);
+		file = new TypedIOPort(this, "FileName", true, false);
 		file.setTypeEquals(new ArrayType(BaseType.STRING));
 	}
 
@@ -62,30 +62,42 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		ObjectToken authObjToken = (ObjectToken) authobj.get(0);
 		MyEMSLConnect conn = (MyEMSLConnect) authObjToken.getValue();
 
-		ObjectToken mdObjToken = (ObjectToken) mdobj.get(0);
-		List<MyEMSLGroupMD> groups = (List<MyEMSLGroupMD>) mdObjToken.getValue();
+		StringToken outDirToken = (StringToken) outdir.get(0);
+		String outDirStr = (String) outDirToken.getString();
 
-		List<Token> itemids = new LinkedList<Token>()
-		List<Token> files = new LinkedList<Token>()
-		List<Token> authtokens = new LinkedList<Token>()
+		ArrayToken itemidToken = (ArrayToken) itemid.get(0);
+		ArrayToken authtToken = (ArrayToken) authtoken.get(0);
+		ArrayToken fileToken = (ArrayToken) file.get(0);
 
-		try {
-			/* should be an array of (itemid, path, authtoken). */
-			for(Triplet<Integer,String,String> item:conn.query(groups))
-			{
-				files.add(new StringToken(item.getValue1()));
-				itemids.add(new IntToken(item.getValue0()));
-				authtokens.add(new StringToken(item.getValue2()));
+		if(itemidToken.length() != authtToken.length() && authtToken.length() != fileToken.length())
+		{
+			throw new IllegalActionException("itemid authtoken and file arrays don't have the same length");
+		}
+
+		/* should be an array of (itemid, path, authtoken). */
+		for(int i = 0; i < fileToken.length(); i++)
+		{
+			StringToken fileStrTok = (StringToken) fileToken.getElement(i);
+			String fileStr = fileStrTok.getString();
+			StringToken authtStrTok = (StringToken) authtToken.getElement(i);
+			String authtStr = authtStrTok.getString();
+			IntToken itemidIntTok = (IntToken) itemidToken.getElement(i);
+			Integer itemidInt = itemidStrTok.getInt();
+
+			File outfile = new File(outDirStr+fileStr);
+			File outdir = new File(outfile.getParent());
+			try {
+				outdir.mkdirs();
+				BufferedWriter bwout = new BufferedWriter(new FileWriter(outfile));
+				conn.getitem(bwout, new Triplet<Integer,String,String>(itemidInt,fileStr,authtStr));
+				bwout.close();
+			} catch(XPathExpressionException ex) {
+				throw new IllegalActionException(ex.toString());
+			} catch(SAXException ex) {
+				throw new IllegalActionException(ex.toString());
+			} catch(IOException ex) {
+				throw new IllegalActionException(ex.toString());
 			}
-			file.broadcast(new ArrayToken(files.toArray(new Token[0])));
-			authtoken.broadcast(new ArrayToken(authtokens.toArray(new Token[0])));
-			itemid.broadcast(new ArrayToken(itemids.toArray(new Token[0])));
-		} catch(XPathExpressionException ex) {
-			throw new IllegalActionException(ex.toString());
-		} catch(SAXException ex) {
-			throw new IllegalActionException(ex.toString());
-		} catch(IOException ex) {
-			throw new IllegalActionException(ex.toString());
 		}
 	}
 }
