@@ -18,4 +18,9 @@ lsid: urn:lsid:kepler-project.org:actor:38370:1
 type: ptolemy.kernel.ComponentEntity
 handler: org.kepler.kar.handlers.ActorMetadataKAREntryHandler
 
+Name: MyEMSLDownload.xml
+lsid: urn:lsid:kepler-project.org:actor:38446:1
+type: ptolemy.kernel.ComponentEntity
+handler: org.kepler.kar.handlers.ActorMetadataKAREntryHandler
+
 

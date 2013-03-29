@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 
 import org.javatuples.Triplet;
 
@@ -29,6 +30,7 @@ import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.IntToken;
 import ptolemy.data.ArrayToken;
+import ptolemy.data.Token;
 
 import gov.pnnl.emsl.my.MyEMSLConnect;
 import gov.pnnl.emsl.my.MyEMSLGroupMD;
@@ -65,9 +67,9 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		ObjectToken mdObjToken = (ObjectToken) mdobj.get(0);
 		List<MyEMSLGroupMD> groups = (List<MyEMSLGroupMD>) mdObjToken.getValue();
 
-		List<Token> itemids = new LinkedList<Token>()
-		List<Token> files = new LinkedList<Token>()
-		List<Token> authtokens = new LinkedList<Token>()
+		List<Token> itemids = new LinkedList<Token>();
+		List<Token> files = new LinkedList<Token>();
+		List<Token> authtokens = new LinkedList<Token>();
 
 		try {
 			/* should be an array of (itemid, path, authtoken). */

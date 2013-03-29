@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 
 import org.javatuples.Triplet;
 
@@ -27,31 +28,35 @@ import ptolemy.data.type.BaseType;
 import ptolemy.data.type.ArrayType;
 import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
+import ptolemy.data.Token;
 import ptolemy.data.IntToken;
 import ptolemy.data.ArrayToken;
 
 import gov.pnnl.emsl.my.MyEMSLConnect;
 import gov.pnnl.emsl.my.MyEMSLGroupMD;
 
-public class MyEMSLQuery extends TypedAtomicActor {
+public class MyEMSLDownload extends TypedAtomicActor {
 	public TypedIOPort authobj;
 	public TypedIOPort outdir;
 	public TypedIOPort file;
+	public TypedIOPort ofile;
 	public TypedIOPort itemid;
 	public TypedIOPort authtoken;
 
-	public MyEMSLQuery(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
+	public MyEMSLDownload(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 		authobj = new TypedIOPort(this, "MyEMSLConnection", true, false);
 		authobj.setTypeEquals(BaseType.UNKNOWN);
 		outdir = new TypedIOPort(this, "OutDir", true, false);
-		outdir.setTypeEquals(BaseType.String);
+		outdir.setTypeEquals(BaseType.STRING);
 		itemid = new TypedIOPort(this, "ItemID", true, false);
 		itemid.setTypeEquals(new ArrayType(BaseType.INT));
 		authtoken = new TypedIOPort(this, "AuthToken", true, false);
 		authtoken.setTypeEquals(new ArrayType(BaseType.STRING));
 		file = new TypedIOPort(this, "FileName", true, false);
 		file.setTypeEquals(new ArrayType(BaseType.STRING));
+		ofile = new TypedIOPort(this, "SavedFileName", false, true);
+		ofile.setTypeEquals(new ArrayType(BaseType.STRING));
 	}
 
 	@Override
@@ -63,11 +68,13 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		MyEMSLConnect conn = (MyEMSLConnect) authObjToken.getValue();
 
 		StringToken outDirToken = (StringToken) outdir.get(0);
-		String outDirStr = (String) outDirToken.getString();
+		String outDirStr = (String) outDirToken.stringValue();
 
 		ArrayToken itemidToken = (ArrayToken) itemid.get(0);
 		ArrayToken authtToken = (ArrayToken) authtoken.get(0);
 		ArrayToken fileToken = (ArrayToken) file.get(0);
+
+		List<Token> savedFiles = new LinkedList<Token>();
 
 		if(itemidToken.length() != authtToken.length() && authtToken.length() != fileToken.length())
 		{
@@ -78,11 +85,11 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		for(int i = 0; i < fileToken.length(); i++)
 		{
 			StringToken fileStrTok = (StringToken) fileToken.getElement(i);
-			String fileStr = fileStrTok.getString();
+			String fileStr = fileStrTok.stringValue();
 			StringToken authtStrTok = (StringToken) authtToken.getElement(i);
-			String authtStr = authtStrTok.getString();
+			String authtStr = authtStrTok.stringValue();
 			IntToken itemidIntTok = (IntToken) itemidToken.getElement(i);
-			Integer itemidInt = itemidStrTok.getInt();
+			Integer itemidInt = itemidIntTok.intValue();
 
 			File outfile = new File(outDirStr+fileStr);
 			File outdir = new File(outfile.getParent());
@@ -91,6 +98,7 @@ public class MyEMSLQuery extends TypedAtomicActor {
 				BufferedWriter bwout = new BufferedWriter(new FileWriter(outfile));
 				conn.getitem(bwout, new Triplet<Integer,String,String>(itemidInt,fileStr,authtStr));
 				bwout.close();
+				savedFiles.add(new StringToken(outDirStr+fileStr));
 			} catch(XPathExpressionException ex) {
 				throw new IllegalActionException(ex.toString());
 			} catch(SAXException ex) {
@@ -99,5 +107,6 @@ public class MyEMSLQuery extends TypedAtomicActor {
 				throw new IllegalActionException(ex.toString());
 			}
 		}
+		ofile.broadcast(new ArrayToken(savedFiles.toArray(new Token[0])));
 	}
 }
