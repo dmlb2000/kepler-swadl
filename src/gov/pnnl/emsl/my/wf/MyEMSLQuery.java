@@ -45,9 +45,9 @@ public class MyEMSLQuery extends TypedAtomicActor {
 	public MyEMSLQuery(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 		authobj = new TypedIOPort(this, "MyEMSLConnection", true, false);
-		authobj.setTypeEquals(BaseType.UNKNOWN);
+		authobj.setTypeEquals(BaseType.OBJECT);
 		mdobj = new TypedIOPort(this, "MyEMSLMetadata", true, false);
-		mdobj.setTypeEquals(new ArrayType(BaseType.UNKNOWN));
+		mdobj.setTypeEquals(new ArrayType(BaseType.OBJECT));
 		itemid = new TypedIOPort(this, "ItemID", false, true);
 		itemid.setTypeEquals(new ArrayType(BaseType.INT));
 		authtoken = new TypedIOPort(this, "AuthToken", false, true);
@@ -64,12 +64,17 @@ public class MyEMSLQuery extends TypedAtomicActor {
 		ObjectToken authObjToken = (ObjectToken) authobj.get(0);
 		MyEMSLConnect conn = (MyEMSLConnect) authObjToken.getValue();
 
-		ObjectToken mdObjToken = (ObjectToken) mdobj.get(0);
-		List<MyEMSLGroupMD> groups = (List<MyEMSLGroupMD>) mdObjToken.getValue();
+		ArrayToken mdObjToken = (ArrayToken) mdobj.get(0);
+		List<MyEMSLGroupMD> groups = new ArrayList<MyEMSLGroupMD>();
+		for(int i = 0; i < mdObjToken.length(); i++)
+		{
+			ObjectToken mdTok = (ObjectToken) mdObjToken.getElement(i);
+			groups.add((MyEMSLGroupMD)mdTok.getValue());
+		}
 
-		List<Token> itemids = new LinkedList<Token>();
-		List<Token> files = new LinkedList<Token>();
-		List<Token> authtokens = new LinkedList<Token>();
+		List<IntToken> itemids = new LinkedList<IntToken>();
+		List<StringToken> files = new LinkedList<StringToken>();
+		List<StringToken> authtokens = new LinkedList<StringToken>();
 
 		try {
 			/* should be an array of (itemid, path, authtoken). */
@@ -79,9 +84,9 @@ public class MyEMSLQuery extends TypedAtomicActor {
 				itemids.add(new IntToken(item.getValue0()));
 				authtokens.add(new StringToken(item.getValue2()));
 			}
-			file.broadcast(new ArrayToken(files.toArray(new Token[0])));
-			authtoken.broadcast(new ArrayToken(authtokens.toArray(new Token[0])));
-			itemid.broadcast(new ArrayToken(itemids.toArray(new Token[0])));
+			file.broadcast(new ArrayToken(files.toArray(new StringToken[0])));
+			authtoken.broadcast(new ArrayToken(authtokens.toArray(new StringToken[0])));
+			itemid.broadcast(new ArrayToken(itemids.toArray(new IntToken[0])));
 		} catch(XPathExpressionException ex) {
 			throw new IllegalActionException(ex.toString());
 		} catch(SAXException ex) {

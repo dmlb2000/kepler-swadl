@@ -44,7 +44,7 @@ public class MyEMSLLogin extends TypedAtomicActor {
 		password = new TypedIOPort(this, "Password", true, false);
 		password.setTypeEquals(BaseType.STRING);
 		authobj = new TypedIOPort(this, "Connection", false, true);
-		authobj.setTypeEquals(BaseType.UNKNOWN);
+		authobj.setTypeEquals(BaseType.OBJECT);
 	}
 
 	@Override
@@ -78,6 +78,7 @@ public class MyEMSLLogin extends TypedAtomicActor {
 			writer.write("\nserver=");
 			writer.write(dataServerStr);
 			writer.write("\nservices=myemsl/services\n");
+			writer.close();
 			authobj.broadcast(new ObjectToken(new MyEMSLConnect(new MyEMSLConfig(temp.getAbsolutePath()), usernameStr, passwordStr)));
 		} catch(IOException ex) {
 			throw new IllegalActionException(ex.toString());

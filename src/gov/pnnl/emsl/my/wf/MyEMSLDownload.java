@@ -46,7 +46,7 @@ public class MyEMSLDownload extends TypedAtomicActor {
 	public MyEMSLDownload(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 		authobj = new TypedIOPort(this, "MyEMSLConnection", true, false);
-		authobj.setTypeEquals(BaseType.UNKNOWN);
+		authobj.setTypeEquals(BaseType.OBJECT);
 		outdir = new TypedIOPort(this, "OutDir", true, false);
 		outdir.setTypeEquals(BaseType.STRING);
 		itemid = new TypedIOPort(this, "ItemID", true, false);

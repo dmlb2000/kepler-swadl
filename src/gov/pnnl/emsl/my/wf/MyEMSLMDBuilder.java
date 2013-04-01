@@ -23,10 +23,12 @@ import ptolemy.data.type.ArrayType;
 import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.ArrayToken;
+import ptolemy.data.Token;
 
 import gov.pnnl.emsl.my.MyEMSLGroupMD;
 
 public class MyEMSLMDBuilder extends TypedAtomicActor {
+
 	public TypedIOPort inputs;
 	public TypedIOPort mdobj;
 
@@ -35,7 +37,7 @@ public class MyEMSLMDBuilder extends TypedAtomicActor {
 		inputs = new TypedIOPort(this, "MDStrings", true, false);
 		inputs.setTypeEquals(new ArrayType(BaseType.STRING));
 		mdobj = new TypedIOPort(this, "MDObject", false, true);
-		mdobj.setTypeEquals(BaseType.UNKNOWN);
+		mdobj.setTypeEquals(new ArrayType(BaseType.OBJECT));
 	}
 
 	@Override
@@ -43,9 +45,12 @@ public class MyEMSLMDBuilder extends TypedAtomicActor {
 		// TODO Auto-generated method stub
 		super.fire();
 
-		List<MyEMSLGroupMD> groups = new ArrayList<MyEMSLGroupMD>();
+		List<ObjectToken> groups = new ArrayList<ObjectToken>();
 
 		ArrayToken inputToken = (ArrayToken) inputs.get(0);
+
+		if(inputToken.length() == 0)
+			throw new IllegalActionException("array length is 0 bailing\n");
 
 		for(int i = 0; i < inputToken.length(); i++)
 		{
@@ -53,8 +58,8 @@ public class MyEMSLMDBuilder extends TypedAtomicActor {
 			String str = strTok.stringValue();
 			String key = str.split("=")[0];
 			String value = str.split("=")[1];
-			groups.add(new MyEMSLGroupMD(value, key));
+			groups.add(new ObjectToken(new MyEMSLGroupMD(value, key)));
 		}
-		mdobj.broadcast(new ObjectToken(groups));
+		mdobj.broadcast(new ArrayToken(groups.toArray(new ObjectToken[0])));
 	}
 }

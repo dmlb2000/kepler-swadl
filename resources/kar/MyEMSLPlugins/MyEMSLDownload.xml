@@ -2,12 +2,13 @@
 <!DOCTYPE entity PUBLIC "-//UC Berkeley//DTD MoML 1//EN"
     "http://ptolemy.eecs.berkeley.edu/xml/dtd/MoML_1.dtd">
 <entity name="MyEMSLDownload" class="ptolemy.kernel.ComponentEntity">
-<property name="entityId"  value="urn:lsid:kepler-project.org/ns/:38445:5:1" class="org.kepler.moml.NamedObjId"/>
+<property name="entityId"  value="urn:lsid:kepler-project.org/ns/:38446:5:1" class="org.kepler.moml.NamedObjId"/>
 <property name="class" value="gov.pnnl.emsl.my.wf.MyEMSLDownload" class="ptolemy.kernel.util.StringAttribute">
-  <property name="id" value="null" class="ptolemy.kernel.util.StringAttribute"/>
+  <property name="id" value="urn:lsid:kepler-project.org:class:38450:1" class="ptolemy.kernel.util.StringAttribute"/>
 </property>
-<property name="semanticType" class="org.kepler.sms.SemanticType" value="urn:lsid:localhost:onto:2:1#DataOutput#Data Output">
-</property>
+<property name="semanticType0" class="org.kepler.sms.SemanticType" value="urn:lsid:localhost:onto:2:1#Actor"/>
+<property name="semanticType1" class="org.kepler.sms.SemanticType" value="urn:lsid:localhost:onto:2:1#GeneralPurpose"/>
+<property name="semanticType2" class="org.kepler.sms.SemanticType" value="urn:lsid:localhost:onto:2:1#Workflow"/>
 <property name="derivedFrom" class="org.kepler.moml.NamedObjIdReferralList">
 </property>
 <property name="kepler:MyEMSLConnection" class="org.kepler.moml.PortAttribute">
