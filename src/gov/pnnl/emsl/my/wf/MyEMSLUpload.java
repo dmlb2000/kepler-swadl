@@ -56,12 +56,21 @@ public class MyEMSLUpload extends TypedAtomicActor {
 	public static class BuildFileMD extends SimpleFileVisitor<Path> {
 		public MyEMSLMetadata md;
 		public List<MyEMSLGroupMD> groups;
-		public BuildFileMD() { md = new MyEMSLMetadata(); groups = null; }
-		public BuildFileMD(List<MyEMSLGroupMD> groups) { md = new MyEMSLMetadata(); groups = groups; }
+		public File parentPath;
+		public BuildFileMD() { md = new MyEMSLMetadata(); groups = null; parentPath = null; }
+		public BuildFileMD(List<MyEMSLGroupMD> groups, File parentPath) {
+			this.md = new MyEMSLMetadata();
+			this.groups = groups;
+			this.parentPath = parentPath;
+		}
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-			MyEMSLFileMD afmd = new MyEMSLFileMD(file.toString(), file.toString(), "hashforfilea");
+			File f = file.toFile();
+			if(f.getAbsolutePath().startsWith(parentPath.getAbsolutePath()) == false)
+				return FileVisitResult.TERMINATE;
+			String relpath = f.getAbsolutePath().substring(parentPath.getAbsolutePath().length()+1);
+			MyEMSLFileMD afmd = new MyEMSLFileMD(relpath, f.getAbsolutePath(), "hashforfilea");
 			for(MyEMSLGroupMD group: this.groups) {
 				afmd.groups.add(new MyEMSLGroupMD(group.name, group.type));
 			}
@@ -100,8 +109,9 @@ public class MyEMSLUpload extends TypedAtomicActor {
 		}
 
 		try {
-			BuildFileMD fmd = new BuildFileMD(groups);
 			Path path = FileSystems.getDefault().getPath(updirStr);
+			File updirFile = path.toFile();
+			BuildFileMD fmd = new BuildFileMD(groups, updirFile);
 			Files.walkFileTree(path, fmd);
 
 			MyEMSLFileCollection col = new MyEMSLFileCollection(fmd.md);
