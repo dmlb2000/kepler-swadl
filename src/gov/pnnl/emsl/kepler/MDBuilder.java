@@ -1,19 +1,8 @@
-package gov.pnnl.emsl.my.wf;
+package gov.pnnl.emsl.kepler;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.FileOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
-
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import javax.xml.parsers.ParserConfigurationException;
-
 import ptolemy.actor.TypedAtomicActor;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
@@ -23,16 +12,14 @@ import ptolemy.data.type.ArrayType;
 import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.ArrayToken;
-import ptolemy.data.Token;
+import gov.pnnl.emsl.SWADL.Group;
 
-import gov.pnnl.emsl.my.MyEMSLGroupMD;
-
-public class MyEMSLMDBuilder extends TypedAtomicActor {
+public class MDBuilder extends TypedAtomicActor {
 
 	public TypedIOPort inputs;
 	public TypedIOPort mdobj;
 
-	public MyEMSLMDBuilder(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
+	public MDBuilder(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 		inputs = new TypedIOPort(this, "MDStrings", true, false);
 		inputs.setTypeEquals(new ArrayType(BaseType.STRING));
@@ -58,7 +45,7 @@ public class MyEMSLMDBuilder extends TypedAtomicActor {
 			String str = strTok.stringValue();
 			String key = str.split("=")[0];
 			String value = str.split("=")[1];
-			groups.add(new ObjectToken(new MyEMSLGroupMD(value, key)));
+			groups.add(new ObjectToken(new Group(value, key)));
 		}
 		mdobj.broadcast(new ArrayToken(groups.toArray(new ObjectToken[0])));
 	}

@@ -1,17 +1,9 @@
-package gov.pnnl.emsl.my.wf;
+package gov.pnnl.emsl.kepler;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.FileOutputStream;
 import java.io.File;
-import java.io.IOException;
-
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import javax.xml.parsers.ParserConfigurationException;
-
 import ptolemy.actor.TypedAtomicActor;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
@@ -19,20 +11,24 @@ import ptolemy.actor.TypedIOPort;
 import ptolemy.data.type.BaseType;
 import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
+import gov.pnnl.emsl.SWADL.SWADL;
 
-import gov.pnnl.emsl.my.MyEMSLConnect;
-import gov.pnnl.emsl.my.MyEMSLConfig;
-
-public class MyEMSLLogin extends TypedAtomicActor {
+public class Login extends TypedAtomicActor {
 	public TypedIOPort myemslData;
 	public TypedIOPort myemslQuery;
 	public TypedIOPort proto;
 	public TypedIOPort username;
 	public TypedIOPort password;
 	public TypedIOPort authobj;
+	public TypedIOPort backend;
+	public TypedIOPort zone;
 
-	public MyEMSLLogin(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
+	public Login(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
+		backend = new TypedIOPort(this, "Backend", true, false);
+		backend.setTypeEquals(BaseType.STRING);
+		zone = new TypedIOPort(this, "Zone", true, false);
+		zone.setTypeEquals(BaseType.STRING);
 		myemslData = new TypedIOPort(this, "DataServer", true, false);
 		myemslData.setTypeEquals(BaseType.STRING);
 		myemslQuery = new TypedIOPort(this, "QueryServer", true, false);
@@ -51,7 +47,14 @@ public class MyEMSLLogin extends TypedAtomicActor {
 	public void fire() throws IllegalActionException {
 		// TODO Auto-generated method stub
 		super.fire();
+		SWADL conn = null;
 
+		StringToken backendToken = (StringToken) backend.get(0);
+		String backendStr = backendToken.stringValue();
+		
+		StringToken zoneToken = (StringToken) zone.get(0);
+		String zoneStr = backendToken.stringValue();
+		
 		StringToken dataServerToken = (StringToken) myemslData.get(0);
 		String dataServerStr = dataServerToken.stringValue();
 
@@ -68,25 +71,28 @@ public class MyEMSLLogin extends TypedAtomicActor {
 		String passwordStr = passwordToken.stringValue();
 
 		try {
-			File temp = File.createTempFile("temp",".ini");
-			temp.deleteOnExit();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
-			writer.write("[client]\nproto=");
-			writer.write(protoStr);
-			writer.write("\nquery_server=");
-			writer.write(queryServerStr);
-			writer.write("\nserver=");
-			writer.write(dataServerStr);
-			writer.write("\nservices=myemsl/services\n");
-			writer.close();
-			authobj.broadcast(new ObjectToken(new MyEMSLConnect(new MyEMSLConfig(temp.getAbsolutePath()), usernameStr, passwordStr)));
-		} catch(IOException ex) {
-			throw new IllegalActionException(ex.toString());
-		} catch(GeneralSecurityException ex) {
-			throw new IllegalActionException(ex.toString());
-		} catch(URISyntaxException ex) {
-			throw new IllegalActionException(ex.toString());
-		} catch(ParserConfigurationException ex) {
+			if(backend.equals("myemsl")) {
+				File temp = File.createTempFile("temp",".ini");
+				temp.deleteOnExit();
+				BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
+				writer.write("[client]\nproto=");
+				writer.write(protoStr);
+				writer.write("\nquery_server=");
+				writer.write(queryServerStr);
+				writer.write("\nserver=");
+				writer.write(dataServerStr);
+				writer.write("\nservices=myemsl/services\n");
+				writer.close();
+				conn = new gov.pnnl.emsl.PacificaLibrary.Connect(new gov.pnnl.emsl.PacificaLibrary.LibraryConfiguration(temp.getAbsolutePath()), usernameStr, passwordStr);
+			} else if (backend.equals("irods")) {
+				gov.pnnl.emsl.iRODS.LibraryConfiguration c = new gov.pnnl.emsl.iRODS.LibraryConfiguration();
+				c.setHost(dataServerStr);
+				c.setPort(1247);
+				c.setZone(zoneStr);
+				conn = new gov.pnnl.emsl.iRODS.Connect(c);
+			}
+			authobj.broadcast(new ObjectToken(conn));
+		} catch(Exception ex) {
 			throw new IllegalActionException(ex.toString());
 		}
 	}
