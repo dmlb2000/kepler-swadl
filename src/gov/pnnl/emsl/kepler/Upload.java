@@ -47,13 +47,13 @@ public class Upload extends TypedAtomicActor {
 
 	public Upload(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
 		super(container, name);
-		authobj = new TypedIOPort(this, "MyEMSLConnection", true, false);
+		authobj = new TypedIOPort(this, "Connection", true, false);
 		authobj.setTypeEquals(BaseType.OBJECT);
-		mdobj = new TypedIOPort(this, "MyEMSLMetadata", true, false);
+		mdobj = new TypedIOPort(this, "Metadata", true, false);
 		mdobj.setTypeEquals(new ArrayType(BaseType.OBJECT));
-		updir = new TypedIOPort(this, "MyEMSLUploadDir", true, false);
+		updir = new TypedIOPort(this, "UploadDir", true, false);
 		updir.setTypeEquals(BaseType.STRING);
-		status = new TypedIOPort(this, "MyEMSLStatusURL", false, true);
+		status = new TypedIOPort(this, "StatusURL", false, true);
 		status.setTypeEquals(BaseType.STRING);
 	}
 
@@ -77,6 +77,7 @@ public class Upload extends TypedAtomicActor {
 		try {
 			File updirFile = new File(updirStr);
 			conn.uploadWait(conn.uploadAsync(this.getFiles(updirFile.getName(), groups)));
+			status.broadcast(new StringToken("done"));
 		} catch (Exception ex) {
 			throw new IllegalActionException(ex.toString());
 		}
