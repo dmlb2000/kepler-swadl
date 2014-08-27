@@ -15,13 +15,6 @@ import ptolemy.data.ObjectToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.ArrayToken;
 
-import java.nio.file.Path;
-import java.nio.file.Files;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileSystems;
-import java.nio.file.attribute.BasicFileAttributes;
-
 import gov.pnnl.emsl.SWADL.Group;
 import gov.pnnl.emsl.SWADL.SWADL;
 
@@ -31,7 +24,7 @@ public class Upload extends TypedAtomicActor {
 	public TypedIOPort mdobj;
 	public TypedIOPort status;
 
-	public List<gov.pnnl.emsl.SWADL.File> getFiles(String folder, List<Group> groups) {
+	public List<gov.pnnl.emsl.SWADL.File> getFiles(String folder, List<Group> groups) throws Exception {
 
 		List<gov.pnnl.emsl.SWADL.File> list = new ArrayList<gov.pnnl.emsl.SWADL.File>();
 		File dir = new File(folder);
@@ -44,8 +37,9 @@ public class Upload extends TypedAtomicActor {
 				f.setName(s);
 				f.setGroups(groups);
 				list.add(f);
-				if(file.isDirectory())
-					list.add(getFiles(file.getName(), groups));
+				if(file.isDirectory()) {
+					list.addAll(this.getFiles(file.getName(), groups));
+				}
 			}
 		}
 		return list;
@@ -81,10 +75,8 @@ public class Upload extends TypedAtomicActor {
 		}
 
 		try {
-			Path path = FileSystems.getDefault().getPath(updirStr);
-			File updirFile = path.toFile();
-
-			conn.uploadWait(conn.uploadAsync(getFiles(updirFile.getName()));
+			File updirFile = new File(updirStr);
+			conn.uploadWait(conn.uploadAsync(this.getFiles(updirFile.getName(), groups)));
 		} catch (Exception ex) {
 			throw new IllegalActionException(ex.toString());
 		}
