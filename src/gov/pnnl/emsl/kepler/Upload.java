@@ -31,39 +31,24 @@ public class Upload extends TypedAtomicActor {
 	public TypedIOPort mdobj;
 	public TypedIOPort status;
 
-	public static class BuildFileMD extends SimpleFileVisitor<Path> {
-		public List<gov.pnnl.emsl.SWADL.File> files;
-		public List<Group> groups;
-		public File parentPath;
-		public BuildFileMD() {
-			files = new ArrayList<gov.pnnl.emsl.SWADL.File>();
-			groups = null;
-			parentPath = null;
-		}
-		public BuildFileMD(List<Group> groups, File parentPath) {
-			files = new ArrayList<gov.pnnl.emsl.SWADL.File>();
-			this.groups = groups;
-			this.parentPath = parentPath;
-		}
+	public List<gov.pnnl.emsl.SWADL.File> getFiles(String folder, List<Group> groups) {
 
-		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-			File f = file.toFile();
-			if(f.getAbsolutePath().startsWith(parentPath.getAbsolutePath()) == false)
-				return FileVisitResult.TERMINATE;
-			String relpath = f.getAbsolutePath().substring(parentPath.getAbsolutePath().length()+1);
-			gov.pnnl.emsl.SWADL.File afmd = new gov.pnnl.emsl.SWADL.File();
-			try {
-				afmd.setName(relpath);
-				afmd.setGroups(groups);
-				afmd.setLocalName(relpath);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return FileVisitResult.TERMINATE;
+		List<gov.pnnl.emsl.SWADL.File> list = new ArrayList<gov.pnnl.emsl.SWADL.File>();
+		File dir = new File(folder);
+		if(dir.isDirectory()) {
+			File[] fileNames = dir.listFiles();
+			for (File file : fileNames) {
+				String s = file.getName();
+				gov.pnnl.emsl.SWADL.File f = new gov.pnnl.emsl.SWADL.File();
+				f.setLocalName(s);
+				f.setName(s);
+				f.setGroups(groups);
+				list.add(f);
+				if(file.isDirectory())
+					list.add(getFiles(file.getName(), groups));
 			}
-			return FileVisitResult.CONTINUE;
 		}
+		return list;
 	}
 
 	public Upload(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
@@ -98,10 +83,8 @@ public class Upload extends TypedAtomicActor {
 		try {
 			Path path = FileSystems.getDefault().getPath(updirStr);
 			File updirFile = path.toFile();
-			BuildFileMD fmd = new BuildFileMD(groups, updirFile);
-			Files.walkFileTree(path, fmd);
 
-			conn.uploadWait(conn.uploadAsync(fmd.files));
+			conn.uploadWait(conn.uploadAsync(getFiles(updirFile.getName()));
 		} catch (Exception ex) {
 			throw new IllegalActionException(ex.toString());
 		}
