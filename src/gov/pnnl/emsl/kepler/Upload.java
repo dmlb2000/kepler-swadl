@@ -27,11 +27,14 @@ public class Upload extends TypedAtomicActor {
 	public List<gov.pnnl.emsl.SWADL.File> getFiles(String folder, List<Group> groups) throws Exception {
 
 		List<gov.pnnl.emsl.SWADL.File> list = new ArrayList<gov.pnnl.emsl.SWADL.File>();
+		System.out.print("processing ("+folder+")\n");
 		File dir = new File(folder);
 		if(dir.isDirectory()) {
+			System.out.print("its a folder\n");
 			File[] fileNames = dir.listFiles();
 			for (File file : fileNames) {
 				String s = file.getName();
+				System.out.print("processing ("+s+")\n");
 				gov.pnnl.emsl.SWADL.File f = new gov.pnnl.emsl.SWADL.File();
 				f.setLocalName(s);
 				f.setName(s);
@@ -73,10 +76,39 @@ public class Upload extends TypedAtomicActor {
 			ObjectToken mdTok = (ObjectToken) mdObjToken.getElement(i);
 			groups.add((Group)mdTok.getValue());
 		}
-
+		File updirFile = null;
 		try {
-			File updirFile = new File(updirStr);
-			conn.uploadWait(conn.uploadAsync(this.getFiles(updirFile.getName(), groups)));
+			updirFile = new File(updirStr);
+		} catch (Exception ex) {
+			throw new IllegalActionException(ex.toString());
+		}
+		List<gov.pnnl.emsl.SWADL.File> f = null;
+		try {
+			System.out.print(updirFile.getName());
+			f = this.getFiles(updirFile.getName(), groups);
+		} catch (Exception ex) {
+			throw new IllegalActionException(ex.toString());
+		}
+		gov.pnnl.emsl.SWADL.UploadHandle h = null;
+		try {
+			System.out.print("blah and more blah\n");
+			for(gov.pnnl.emsl.SWADL.File a: f) {
+				System.out.print("blah("+a.getName()+")blah\n");
+			}
+		} catch (Exception ex) {
+			throw new IllegalActionException(ex.toString());
+		}
+		try {
+			h = conn.uploadAsync(f);
+		} catch (Exception ex) {
+			throw new IllegalActionException(ex.toString());
+		}
+		try {
+			conn.uploadWait(h);
+		} catch (Exception ex) {
+			throw new IllegalActionException(ex.toString());
+		}
+		try {
 			status.broadcast(new StringToken("done"));
 		} catch (Exception ex) {
 			throw new IllegalActionException(ex.toString());
