@@ -16,6 +16,10 @@ import gov.pnnl.emsl.SWADL.Group;
 
 public class MDBuilder extends TypedAtomicActor {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1521L;
 	public TypedIOPort inputs;
 	public TypedIOPort mdobj;
 
@@ -29,7 +33,6 @@ public class MDBuilder extends TypedAtomicActor {
 
 	@Override
 	public void fire() throws IllegalActionException {
-		// TODO Auto-generated method stub
 		super.fire();
 
 		List<ObjectToken> groups = new ArrayList<ObjectToken>();

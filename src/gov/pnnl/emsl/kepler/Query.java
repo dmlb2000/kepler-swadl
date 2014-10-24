@@ -15,6 +15,10 @@ import gov.pnnl.emsl.SWADL.Group;
 import gov.pnnl.emsl.SWADL.SWADL;
 
 public class Query extends TypedAtomicActor {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1522L;
 	public TypedIOPort authobj;
 	public TypedIOPort mdobj;
 	public TypedIOPort file;
@@ -33,7 +37,6 @@ public class Query extends TypedAtomicActor {
 
 	@Override
 	public void fire() throws IllegalActionException {
-		// TODO Auto-generated method stub
 		super.fire();
 
 		ObjectToken authObjToken = (ObjectToken) authobj.get(0);

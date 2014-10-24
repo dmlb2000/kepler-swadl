@@ -14,6 +14,10 @@ import ptolemy.data.StringToken;
 import gov.pnnl.emsl.SWADL.SWADL;
 
 public class Login extends TypedAtomicActor {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1520L;
 	public TypedIOPort myemslData;
 	public TypedIOPort myemslQuery;
 	public TypedIOPort proto;
@@ -45,7 +49,6 @@ public class Login extends TypedAtomicActor {
 
 	@Override
 	public void fire() throws IllegalActionException {
-		// TODO Auto-generated method stub
 		super.fire();
 		SWADL conn = null;
 
@@ -53,7 +56,7 @@ public class Login extends TypedAtomicActor {
 		String backendStr = backendToken.stringValue();
 		
 		StringToken zoneToken = (StringToken) zone.get(0);
-		String zoneStr = backendToken.stringValue();
+		String zoneStr = zoneToken.stringValue();
 		
 		StringToken dataServerToken = (StringToken) myemslData.get(0);
 		String dataServerStr = dataServerToken.stringValue();
@@ -71,7 +74,7 @@ public class Login extends TypedAtomicActor {
 		String passwordStr = passwordToken.stringValue();
 
 		try {
-			if(backend.equals("myemsl")) {
+			if(backendStr.equals("myemsl")) {
 				File temp = File.createTempFile("temp",".ini");
 				temp.deleteOnExit();
 				BufferedWriter writer = new BufferedWriter(new FileWriter(temp));

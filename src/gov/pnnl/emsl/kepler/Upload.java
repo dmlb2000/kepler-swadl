@@ -19,6 +19,10 @@ import gov.pnnl.emsl.SWADL.Group;
 import gov.pnnl.emsl.SWADL.SWADL;
 
 public class Upload extends TypedAtomicActor {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1523L;
 	public TypedIOPort authobj;
 	public TypedIOPort updir;
 	public TypedIOPort mdobj;

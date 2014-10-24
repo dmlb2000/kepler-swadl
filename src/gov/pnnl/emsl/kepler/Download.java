@@ -21,6 +21,10 @@ import gov.pnnl.emsl.SWADL.SWADL;
 
 
 public class Download extends TypedAtomicActor {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1519L;
 	public TypedIOPort authobj;
 	public TypedIOPort outdir;
 	public TypedIOPort file;
@@ -42,7 +46,6 @@ public class Download extends TypedAtomicActor {
 
 	@Override
 	public void fire() throws IllegalActionException {
-		// TODO Auto-generated method stub
 		super.fire();
 
 		ObjectToken authObjToken = (ObjectToken) authobj.get(0);
