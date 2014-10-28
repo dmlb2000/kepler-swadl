@@ -48,7 +48,7 @@ public class MDBuilder extends TypedAtomicActor {
 			String str = strTok.stringValue();
 			String key = str.split("=")[0];
 			String value = str.split("=")[1];
-			groups.add(new ObjectToken(new Group(value, key)));
+			groups.add(new ObjectToken(new Group(key, value)));
 		}
 		mdobj.broadcast(new ArrayToken(groups.toArray(new ObjectToken[0])));
 	}

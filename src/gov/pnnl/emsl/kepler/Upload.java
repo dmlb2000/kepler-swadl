@@ -84,6 +84,7 @@ public class Upload extends TypedAtomicActor {
 		try {
 			updirFile = new File(updirStr);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 		List<gov.pnnl.emsl.SWADL.File> f = null;
@@ -91,6 +92,7 @@ public class Upload extends TypedAtomicActor {
 			System.out.print(updirFile.getName());
 			f = this.getFiles(updirFile.getName(), groups);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 		gov.pnnl.emsl.SWADL.UploadHandle h = null;
@@ -100,21 +102,25 @@ public class Upload extends TypedAtomicActor {
 				System.out.print("blah("+a.getName()+")blah\n");
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 		try {
 			h = conn.uploadAsync(f);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 		try {
 			conn.uploadWait(h);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 		try {
 			status.broadcast(new StringToken("done"));
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 	}

@@ -87,15 +87,18 @@ public class Login extends TypedAtomicActor {
 				writer.write("\nservices=myemsl/services\n");
 				writer.close();
 				conn = new gov.pnnl.emsl.PacificaLibrary.Connect(new gov.pnnl.emsl.PacificaLibrary.LibraryConfiguration(temp.getAbsolutePath()), usernameStr, passwordStr);
-			} else if (backend.equals("irods")) {
+				conn.login(usernameStr, passwordStr);
+			} else if (backendStr.equals("irods")) {
 				gov.pnnl.emsl.iRODS.LibraryConfiguration c = new gov.pnnl.emsl.iRODS.LibraryConfiguration();
 				c.setHost(dataServerStr);
 				c.setPort(1247);
 				c.setZone(zoneStr);
 				conn = new gov.pnnl.emsl.iRODS.Connect(c);
+				conn.login(usernameStr, passwordStr);
 			}
 			authobj.broadcast(new ObjectToken(conn));
 		} catch(Exception ex) {
+			ex.printStackTrace();
 			throw new IllegalActionException(ex.toString());
 		}
 	}

@@ -73,6 +73,7 @@ public class Download extends TypedAtomicActor {
 				bwout.close();
 				savedFiles.add(new StringToken(outDirStr+fileObj.getName()));
 			} catch(Exception ex) {
+				ex.printStackTrace();
 				throw new IllegalActionException(ex.toString());
 			}
 		}
